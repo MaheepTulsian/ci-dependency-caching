@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── System dependencies (ffmpeg, truthsayer, etc.) ──────────────────────
+      # Caches .deb files so subsequent runs skip the apt download entirely.
+      # Change `version` if you ever modify the package list (busts the cache).
+      - name: Cache & install apt packages
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: ffmpeg truthsayer   # <-- add/remove packages here
+          version: 1.0
+
+      # ── Python + uv ─────────────────────────────────────────────────────────
+      # astral-sh/setup-uv has built-in caching keyed on uv.lock.
+      # Cache is automatically invalidated when lockfile changes.
+      - name: Install uv (with cache)
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version-file: ".python-version"   # or pin: python-version: "3.12"
+
+      - name: Install Python dependencies
+        run: uv sync --frozen
+
+      # ── Tests ────────────────────────────────────────────────────────────────
+      - name: Run tests
+        run: uv run pytest
