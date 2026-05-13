@@ -18,7 +18,7 @@ jobs:
       - name: Cache & install apt packages
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: ffmpeg truthsayer   # <-- add/remove packages here
+          packages: ffmpeg   # <-- add/remove packages here
           version: 1.0
 
       # ── Python + uv ─────────────────────────────────────────────────────────
